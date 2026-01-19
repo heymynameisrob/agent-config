@@ -105,10 +105,172 @@ pull() {
     "$SCRIPT_DIR/install.sh"
 }
 
+# Update README skills table
+update_readme() {
+    local readme="$SCRIPT_DIR/Readme.md"
+    local temp_file=$(mktemp)
+    local in_skills_table=false
+    local table_header_found=false
+    local table_separator_found=false
+    local skills_in_readme=()
+    local skills_in_dir=()
+
+    # Get skills from directory
+    for skill_dir in "$SCRIPT_DIR"/skills/*/; do
+        if [ -d "$skill_dir" ]; then
+            skills_in_dir+=($(basename "$skill_dir"))
+        fi
+    done
+
+    # Read existing skills from README table
+    while IFS= read -r line; do
+        if [[ "$line" =~ ^\|[[:space:]]*\`([a-zA-Z0-9_-]+)\`[[:space:]]*\| ]]; then
+            skills_in_readme+=("${BASH_REMATCH[1]}")
+        fi
+    done < "$readme"
+
+    # Find skills to add (in dir but not in readme)
+    local skills_to_add=()
+    for skill in "${skills_in_dir[@]}"; do
+        local found=false
+        for existing in "${skills_in_readme[@]}"; do
+            if [ "$skill" = "$existing" ]; then
+                found=true
+                break
+            fi
+        done
+        if [ "$found" = false ]; then
+            skills_to_add+=("$skill")
+        fi
+    done
+
+    # Find skills to remove (in readme but not in dir)
+    local skills_to_remove=()
+    for existing in "${skills_in_readme[@]}"; do
+        local found=false
+        for skill in "${skills_in_dir[@]}"; do
+            if [ "$skill" = "$existing" ]; then
+                found=true
+                break
+            fi
+        done
+        if [ "$found" = false ]; then
+            skills_to_remove+=("$existing")
+        fi
+    done
+
+    # If no changes needed, return
+    if [ ${#skills_to_add[@]} -eq 0 ] && [ ${#skills_to_remove[@]} -eq 0 ]; then
+        return 0
+    fi
+
+    echo -e "${BLUE}Updating README skills table...${NC}"
+
+    # Process README line by line
+    in_skills_table=false
+    while IFS= read -r line; do
+        # Detect start of skills table
+        if [[ "$line" =~ ^\|[[:space:]]*Skill[[:space:]]*\| ]]; then
+            in_skills_table=true
+            table_header_found=true
+            echo "$line" >> "$temp_file"
+            continue
+        fi
+
+        # Detect table separator
+        if [ "$table_header_found" = true ] && [ "$table_separator_found" = false ] && [[ "$line" =~ ^\|[-]+\| ]]; then
+            table_separator_found=true
+            echo "$line" >> "$temp_file"
+            continue
+        fi
+
+        # If in skills table and it's a skill row
+        if [ "$in_skills_table" = true ] && [[ "$line" =~ ^\|[[:space:]]*\`([a-zA-Z0-9_-]+)\`[[:space:]]*\| ]]; then
+            local skill_name="${BASH_REMATCH[1]}"
+
+            # Check if this skill should be removed
+            local should_remove=false
+            for remove_skill in "${skills_to_remove[@]}"; do
+                if [ "$skill_name" = "$remove_skill" ]; then
+                    should_remove=true
+                    echo -e "  ${RED}−${NC} Removed $skill_name from README"
+                    break
+                fi
+            done
+
+            if [ "$should_remove" = false ]; then
+                echo "$line" >> "$temp_file"
+            fi
+            continue
+        fi
+
+        # Detect end of skills table (empty line or non-table line after table started)
+        if [ "$in_skills_table" = true ] && [ "$table_separator_found" = true ] && ! [[ "$line" =~ ^\| ]]; then
+            # Add new skills before ending the table
+            for skill in "${skills_to_add[@]}"; do
+                local skill_md="$SCRIPT_DIR/skills/$skill/SKILL.md"
+                local description="TODO: Add description"
+                local triggers="TODO: Add triggers"
+
+                # Try to extract description from SKILL.md frontmatter
+                if [ -f "$skill_md" ]; then
+                    local desc_line=$(grep -m1 "^description:" "$skill_md" 2>/dev/null || true)
+                    if [ -n "$desc_line" ]; then
+                        description=$(echo "$desc_line" | sed 's/^description:[[:space:]]*//' | sed 's/[[:space:]]*$//')
+                        # Truncate if too long and extract triggers from description
+                        if [[ "$description" == *"Use when"* ]]; then
+                            triggers=$(echo "$description" | sed 's/.*Use when //' | sed 's/\.$//')
+                            description=$(echo "$description" | sed 's/[[:space:]]*Use when.*//')
+                        fi
+                    fi
+                fi
+
+                echo "| \`$skill\` | $description | $triggers |" >> "$temp_file"
+                echo -e "  ${GREEN}+${NC} Added $skill to README"
+            done
+
+            in_skills_table=false
+            echo "$line" >> "$temp_file"
+            continue
+        fi
+
+        echo "$line" >> "$temp_file"
+    done < "$readme"
+
+    # Handle case where skills need to be added at the very end of table (no trailing content)
+    if [ "$in_skills_table" = true ] && [ ${#skills_to_add[@]} -gt 0 ]; then
+        for skill in "${skills_to_add[@]}"; do
+            local skill_md="$SCRIPT_DIR/skills/$skill/SKILL.md"
+            local description="TODO: Add description"
+            local triggers="TODO: Add triggers"
+
+            if [ -f "$skill_md" ]; then
+                local desc_line=$(grep -m1 "^description:" "$skill_md" 2>/dev/null || true)
+                if [ -n "$desc_line" ]; then
+                    description=$(echo "$desc_line" | sed 's/^description:[[:space:]]*//' | sed 's/[[:space:]]*$//')
+                    if [[ "$description" == *"Use when"* ]]; then
+                        triggers=$(echo "$description" | sed 's/.*Use when //' | sed 's/\.$//')
+                        description=$(echo "$description" | sed 's/[[:space:]]*Use when.*//')
+                    fi
+                fi
+            fi
+
+            echo "| \`$skill\` | $description | $triggers |" >> "$temp_file"
+            echo -e "  ${GREEN}+${NC} Added $skill to README"
+        done
+    fi
+
+    mv "$temp_file" "$readme"
+    echo ""
+}
+
 # Push changes
 push() {
     header
     local message="${1:-Update agent config}"
+
+    # Update README skills table before checking for changes
+    update_readme
 
     echo -e "${BLUE}Checking for changes...${NC}"
 
