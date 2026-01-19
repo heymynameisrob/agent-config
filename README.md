@@ -27,23 +27,11 @@ cd ~/code/agent-config
 
 ## Skills
 
-### systematic-debugging
-
-Fix bugs using Dan Abramov's systematic debugging method. Forces a disciplined approach: establish reproduction case first, then fix.
-
-**Triggers:** debugging, fixing bugs, investigating errors, "bug", "broken", "not working"
-
-### web-design-guidelines
-
-Review UI code against Vercel's Web Interface Guidelines. Fetches the latest guidelines and audits your code for compliance.
-
-**Triggers:** "review my UI", "check accessibility", "audit design", "review UX"
-
-### vercel-react-best-practices
-
-React and Next.js performance optimization guidelines from Vercel Engineering. 45 rules across 8 categories covering waterfalls, bundle size, server/client performance, re-renders, and more.
-
-**Triggers:** Writing/reviewing React or Next.js code, performance optimization
+| Skill | Description | Triggers |
+|-------|-------------|----------|
+| `systematic-debugging` | Fix bugs using Dan Abramov's systematic debugging method. Forces a disciplined approach: establish reproduction case first, then fix. | debugging, fixing bugs, investigating errors, "bug", "broken", "not working" |
+| `web-design-guidelines` | Review UI code against Vercel's Web Interface Guidelines. Fetches the latest guidelines and audits your code for compliance. | "review my UI", "check accessibility", "audit design", "review UX" |
+| `vercel-react-best-practices` | React and Next.js performance optimization guidelines from Vercel Engineering. 45 rules across 8 categories covering waterfalls, bundle size, server/client performance, re-renders, and more. | Writing/reviewing React or Next.js code, performance optimization |
 
 ## Structure
 
