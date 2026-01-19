@@ -35,21 +35,10 @@ cd ~/code/agent-config
 | `deslop` | Remove AI-generated code slop from the current branch |
 | `react-best-practices` | React and Next.js performance optimization guidelines from Vercel Engineering |
 
-## Structure
-
-```
-agent-config/
-├── install.sh        # Symlinks skills to both tools
-├── sync.sh           # Git sync + skill management
-└── skills/           # Shared skills
-    ├── systematic-debugging/
-    ├── vercel-react-best-practices/
-    └── web-design-guidelines/
-```
 
 ## Adding New Skills
 
-1. Create the skill in Claude Code as normal
+1. Create the skill in Claude Code/Opencode as normal
 2. Import it into the repo: `./sync.sh add my-new-skill`
 3. Push to git: `./sync.sh push "Added my-new-skill"`
 
