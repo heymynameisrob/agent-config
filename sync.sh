@@ -210,22 +210,17 @@ update_readme() {
             for skill in "${skills_to_add[@]}"; do
                 local skill_md="$SCRIPT_DIR/skills/$skill/SKILL.md"
                 local description="TODO: Add description"
-                local triggers="TODO: Add triggers"
 
                 # Try to extract description from SKILL.md frontmatter
                 if [ -f "$skill_md" ]; then
                     local desc_line=$(grep -m1 "^description:" "$skill_md" 2>/dev/null || true)
                     if [ -n "$desc_line" ]; then
-                        description=$(echo "$desc_line" | sed 's/^description:[[:space:]]*//' | sed 's/[[:space:]]*$//')
-                        # Truncate if too long and extract triggers from description
-                        if [[ "$description" == *"Use when"* ]]; then
-                            triggers=$(echo "$description" | sed 's/.*Use when //' | sed 's/\.$//')
-                            description=$(echo "$description" | sed 's/[[:space:]]*Use when.*//')
-                        fi
+                        # Get description and truncate at first sentence
+                        description=$(echo "$desc_line" | sed 's/^description:[[:space:]]*//' | sed 's/[[:space:]]*$//' | sed 's/\..*//')
                     fi
                 fi
 
-                echo "| \`$skill\` | $description | $triggers |" >> "$temp_file"
+                echo "| \`$skill\` | $description |" >> "$temp_file"
                 echo -e "  ${GREEN}+${NC} Added $skill to README"
             done
 
@@ -242,20 +237,15 @@ update_readme() {
         for skill in "${skills_to_add[@]}"; do
             local skill_md="$SCRIPT_DIR/skills/$skill/SKILL.md"
             local description="TODO: Add description"
-            local triggers="TODO: Add triggers"
 
             if [ -f "$skill_md" ]; then
                 local desc_line=$(grep -m1 "^description:" "$skill_md" 2>/dev/null || true)
                 if [ -n "$desc_line" ]; then
-                    description=$(echo "$desc_line" | sed 's/^description:[[:space:]]*//' | sed 's/[[:space:]]*$//')
-                    if [[ "$description" == *"Use when"* ]]; then
-                        triggers=$(echo "$description" | sed 's/.*Use when //' | sed 's/\.$//')
-                        description=$(echo "$description" | sed 's/[[:space:]]*Use when.*//')
-                    fi
+                    description=$(echo "$desc_line" | sed 's/^description:[[:space:]]*//' | sed 's/[[:space:]]*$//' | sed 's/\..*//')
                 fi
             fi
 
-            echo "| \`$skill\` | $description | $triggers |" >> "$temp_file"
+            echo "| \`$skill\` | $description |" >> "$temp_file"
             echo -e "  ${GREEN}+${NC} Added $skill to README"
         done
     fi

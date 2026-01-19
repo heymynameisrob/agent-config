@@ -27,13 +27,13 @@ cd ~/code/agent-config
 
 ## Skills
 
-| Skill | Description | Triggers |
-|-------|-------------|----------|
-| `systematic-debugging` | Fix bugs using Dan Abramov's systematic debugging method. Forces a disciplined approach: establish reproduction case first, then fix. | debugging, fixing bugs, investigating errors, "bug", "broken", "not working" |
-| `web-design-guidelines` | Review UI code against Vercel's Web Interface Guidelines. Fetches the latest guidelines and audits your code for compliance. | "review my UI", "check accessibility", "audit design", "review UX" |
-| `design-review` | Run accessibility and visual design review on components. | reviewing UI code for WCAG compliance and design issues |
-| `deslop` | Remove AI-generated code slop from the current branch. Use after writing code to clean up unnecessary comments, defensive checks, and inconsistent style. | TODO: Add triggers |
-| `react-best-practices` | React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns. Triggers on tasks involving React components, Next.js pages, data fetching, bundle optimization, or performance improvements. | TODO: Add triggers |
+| Skill | Description |
+|-------|-------------|
+| `systematic-debugging` | Fix bugs using Dan Abramov's systematic debugging method |
+| `web-design-guidelines` | Review UI code against Vercel's Web Interface Guidelines |
+| `design-review` | Run accessibility and visual design review on components |
+| `deslop` | Remove AI-generated code slop from the current branch |
+| `react-best-practices` | React and Next.js performance optimization guidelines from Vercel Engineering |
 
 ## Structure
 
